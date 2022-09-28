@@ -1,0 +1,31 @@
+VERSION 0.6
+
+FROM hashicorp/terraform:light
+
+init:
+    COPY . .
+
+    RUN terraform fmt -check
+
+    RUN --secret TF_API_TOKEN \
+        # --secret DIGITALOCEAN_TOKEN \
+        --no-cache \
+        terraform init
+
+    RUN terraform validate -no-color
+
+plan:
+    FROM +init
+
+    RUN --secret TF_API_TOKEN \
+        # --secret DIGITALOCEAN_TOKEN \
+        --no-cache \
+        terraform plan
+
+apply:
+    FROM +init
+
+    RUN --secret TF_API_TOKEN \
+        # --secret DIGITALOCEAN_TOKEN \
+        --no-cache \
+        terraform apply -auto-approve
